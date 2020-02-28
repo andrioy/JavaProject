@@ -32,20 +32,18 @@ public class Main {
     }
 
     public static int[] searchMeetings(String[][] mNames) {
-        int date = -1, hour = -1;
         Scanner input = new Scanner(System.in);
         System.out.println("Enter name of meeting: ");
         String meeting = input.nextLine();
         for (int i = 0; i < mNames.length; i++) {
             for (int j = 0; j < mNames[0].length; j++) {
                 if (meeting.equals(mNames[i][j])) {
-                    date = i;
-                    hour = j + 8;
+                    return new int[]{i, j + 8};
                 }
             }
 
         }
-        return new int[]{date, hour};
+        return new int[]{0, 0};
     }
 
 
@@ -82,8 +80,8 @@ public class Main {
         System.out.print("Enter date do you want your meeting: ");
         int date = input.nextInt();
         System.out.print("Enter hour do you want your meeting: ");
-        int hour = input.nextInt();
-        System.out.print("Enter final hour of meeting: ");
+        int hour = input.nextInt()-9;
+        System.out.print("Enter final hour of meeting: (last hour 17)");
         mFinalsHours[date][hour] = input.nextInt();
         System.out.print("Enter name of meeting: ");
         mNames[date][hour] = input.nextLine();
@@ -110,21 +108,59 @@ public class Main {
 
     public static void printMeetings(int[] mFinalsHours, String[] mNames, String[] mComments, String[] mPlaces) {
         System.out.println("Start - Final :  Meeting,  Place\n------------------\n");
-        for (int i = 0; i < 9; i++) {
-            System.out.println(i + 9 + ":00h - " + mFinalsHours[i] + ":00h : " + mNames[i] + ", " + mPlaces[i] + " Comment: " + mComments[i]);
+        for (int i = 0; i < mFinalsHours.length; i++) {
+            System.out.println(i + 8 + ":00h - " + mFinalsHours[i] + ":00h : " + mNames[i] + ", " + mPlaces[i] + " Comment: " + mComments[i]);
         }
 
     }
 
+    public static void menu(int[][] mFinalsHours, String[][] mNames, String[][] mComments, String[][] mPlaces) {
+        Scanner input = new Scanner(System.in);
+        System.out.print("Menu:\n----------------------------------------\n 1.Add or cancel a meeting.\n 2. Print meetings of a day.\n" +
+                " 3.Change meeting time or meeting place.\n 4.Search meeting.\n 5.Search free time for meeting.\n----------------------------------------\n" +
+                "Enter your choice: ");
+        int choice = input.nextInt();
+        switch (choice) {
+            case 1:
+                System.out.println("If you want to add a meeting(true=add/false=remove)?");
+                boolean add = input.nextBoolean();
+                if (add) addMeeting(mFinalsHours, mNames, mComments, mPlaces);
+                else removeMeeting(mFinalsHours, mNames, mComments, mPlaces);
+                break;
+            case 2:
+                System.out.print("Enter date the meetings which you want to see: ");
+                int date = input.nextInt();
+                printMeetings(mFinalsHours[date], mNames[date], mComments[date], mPlaces[date]);
+                break;
+            case 3:
+                System.out.print("What you want to change - the meeting hour or the meeting place(true = meeting hour / false = meeting place)?  ");
+                boolean change = input.nextBoolean();
+                int[] changeThis = searchMeetings(mNames);
+                if (change) {
+                    changeHour(mFinalsHours, mNames, mComments, mPlaces, changeThis[0], changeThis[1]);
+                    break;
+                } else changePlace(mPlaces[changeThis[0]][changeThis[1]]);
+                break;
+            case 4:
+                int[] m = searchMeetings(mNames);
+                printMeeting(mFinalsHours[m[0]][m[1]], mNames[m[0]][m[1]], mComments[m[0]][m[1]], mPlaces[m[0]][m[1]], m[1]);
+                break;
+            case 5:
+                searchFreeTimeToMeeting(mFinalsHours);
+        }
+    }
+
 
     public static void main(String[] args) {
-        Scanner input = new Scanner(System.in);
-        String[][] meetingsNames = new String[31][9];
-        String[][] meetingsComments = new String[31][9];
-        String[][] meetingsPlaces = new String[31][9];
+
+        int[][] meetingsFinalsHours = new int[31][8];
+        String[][] meetingsNames = new String[31][8];
+        String[][] meetingsComments = new String[31][8];
+        String[][] meetingsPlaces = new String[31][8];
+
+        menu(meetingsFinalsHours, meetingsNames, meetingsComments, meetingsPlaces);
 
 
-        
         //  System.out.println("Enter date of month: ");
         //   int date = input.nextInt();
         //  System.out.println("Enter start hour of meeting: ");
